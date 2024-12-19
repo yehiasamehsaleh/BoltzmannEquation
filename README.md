@@ -13,13 +13,16 @@ Intellij(Maven) + Apache POI library
 boltzmann+kahan algorithms
 precision tolerance is set to 0.000001 = 10^-6
 merge sort
-+------------------------------+----------+
+
 | Worst Case time complexity   | O(nlogn) |
+
 | Best Case time complexity    | O(nlogn) |
+
 | Average case time complexity | O(nlogn) |
+
 | Space Complexity             | O(n)     |
+
 | Stable Sorting               | Yes      |
-+------------------------------+----------+
 
 Additional Information:
 In Microsoft Excel, Press File->Save as -> .csv
