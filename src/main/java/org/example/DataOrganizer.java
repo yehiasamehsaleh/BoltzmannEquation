@@ -83,6 +83,21 @@ public class DataOrganizer {
         if (DuplicatesMap.isEmpty()) {
             System.out.println("No duplicates found. Goodnight, everybody!");
         } else {
+            System.out.println("+---------+-----------------------------------+\n" +
+                    "| Group   | Ranges                            |\n" +
+                    "+---------+-----------------------------------+\n" +
+                    "| Group 1 | [-150, -120]                      |\n" +
+                    "| Group 2 | [-120, -90]                       |\n" +
+                    "| Group 3 | [-90, -60]                        |\n" +
+                    "| Group 4 | [-60, -30]                        |\n" +
+                    "| Group 5 | [-30, 0]                          |\n" +
+                    "| Group 6 | [0, 30]                           |\n" +
+                    "| Group 7 | [30, 60]                          |\n" +
+                    "| Group 8 | [60, 90]                          |\n" +
+                    "| Group 9 | [90, 120]                         |\n" +
+                    "| Group 10| [120, 150]                        |\n" +
+                    "| Group 11| [-181, -150], [150, 181]          |\n" +
+                    "+---------+-----------------------------------+\n");
             System.out.println("********** Duplicates Caught **********");
             int counter = 1;
             for (Map.Entry<List<Object>, List<Integer>> entry : DuplicatesMap.entrySet()) {
@@ -106,7 +121,7 @@ public class DataOrganizer {
 
     }
 
-    public static List<List<Object>> MergeSort(List<List<Object>> data, int columnIndex) {
+    public static List<List<Object>> MergeSort(List<List<Object>> data, int columnIndex) {        // An added quick sort here will be faster some milliseconds when working with only number values
         if (data.size() <= 1) {
             return data;
         }

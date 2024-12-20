@@ -25,7 +25,8 @@ public class Safeguard {
         if (!Files.isReadable(path)) {
             throw new IllegalArgumentException("The file is not readable: " +
                     "\n1.The file format must be a valid CSV (comma-separated values) with the extension \".csv\".\n" +
-                    "\n2.The expected format for each line is:\n" +
+                    "\n2.The expected format for each line is: (The first title line of the .csv will be disregarded)\n" +
+                    "  T1, T2, T3, △E\n" +
                     "  NumberT1, NumberT2, NumberT3, E\n" +
                     "  NumberT1, NumberT2, NumberT3, E\n" +
                     "  ...\n" +
