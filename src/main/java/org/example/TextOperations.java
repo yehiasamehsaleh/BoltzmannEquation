@@ -46,6 +46,17 @@ public class TextOperations {
     }
 
     public static void WriteToExcel(List<List<Object>> SortedData, String FileName) {
+        File file = new File(FileName);
+
+        // Check if file exists, and delete if it does
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("Preexisting file detected and deleted: " + FileName);
+            } else {
+                System.err.println("Failed to delete the open preexisting file: " + FileName);
+            }
+        }
+
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Processed Data");
             Row headerRow = sheet.createRow(0);

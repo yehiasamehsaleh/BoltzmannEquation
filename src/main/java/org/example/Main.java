@@ -1,4 +1,3 @@
-// In case of future problems use poi library directly from project structure instead of editing the maven .xml file
 package org.example;
 
 import java.util.Scanner;
@@ -7,8 +6,6 @@ import java.util.*;
 public class Main {
 
     public static void main(String[] args) {
-
-        //CSVToArrayConverter.main(null);
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the file path: ");
@@ -20,22 +17,26 @@ public class Main {
             Safeguard.validateFilePath(File_Path);
 
             SampleData = TextOperations.ConvertCSVToArray(File_Path);
-
-
             DataOrganizer processor = new DataOrganizer(SampleData, 3);
+
             List<List<Object>> ProcessedData = processor.ProcessData();
             List<List<Object>> DeduplicatedData = DataOrganizer.RemoveDuplicatesWithinProcessedData(ProcessedData);
             List<List<Object>> SortedData = DataOrganizer.MergeSort(DeduplicatedData, 4);
 
-            List<Double> epsilonValues = new ArrayList<>();
+            List<Double> EpsilonValues = new ArrayList<>();
             for (List<Object> row : SortedData) {
-                epsilonValues.add((Double) row.get(4));
+                EpsilonValues.add((Double) row.get(4));
             }
-            double[] epsilonArray = epsilonValues.stream().mapToDouble(Double::doubleValue).toArray();
-            double[] metrics = Equation.CalculatePartitionFunction(epsilonArray);
-            for (int i = 0; i < SortedData.size(); i++) {
-                SortedData.get(i).add(metrics[i]);
-            }
+            double[] EpsilonArray = EpsilonValues.stream().mapToDouble(Double::doubleValue).toArray();
+            double[] Values = Equation.CalculatePartitionFunction(EpsilonArray);
+
+            int i = 0;
+            do {
+                if (i < SortedData.size()) {
+                    SortedData.get(i).add(Values[i]);
+                    i++;
+                }
+            } while (i < SortedData.size());
 
             scanner.close();
             System.out.println("Processed Data in Ascending Order by △E.");
@@ -52,15 +53,10 @@ public class Main {
             scanner.close();
         }
     }
+
 }
 
-
-
-
-
-
-
-        /*
+/*
 
         CMD:
         java -cp "C:\Users\saleh\javaSamples\21\MB\libs\*;C:\Users\saleh\javaSamples\21\MB\target\classes" org.example.Main
@@ -78,4 +74,15 @@ public class Main {
         for (List<Object> row : SortedData) {
             System.out.println(row);
         }
+
+        CSVToArrayConverter.main(null);
+
+
+
+*/
+
+/*
+            for (int i = 0; i < SortedData.size(); i++) {
+                SortedData.get(i).add(metrics[i]);
+            }
 */

@@ -1,6 +1,7 @@
 package org.example;
 
 public class Equation {
+
     public static double[] CalculatePartitionFunction(double[] epsilon) {
         double K = (8.314 * 0.001) / 4.18;  // ideal gas constant in kcal/mol*k
         double c = epsilon[0];  // Chosen input energy levels
@@ -8,14 +9,18 @@ public class Equation {
         double[] Energy_Differences = new double[epsilon.length];
         double[] X_Values = new double[epsilon.length];
 
-        for (int i = 0; i < epsilon.length; ++i) {
-            Energy_Differences[i] = epsilon[i] - c;
-            //System.out.println(energyDifferences[i]);
-            double DividedValue = Energy_Differences[i] / (K * T);
-            //System.out.println("Energy difference " + (i + 1) + ": " + dividedValue);
-            X_Values[i] = Math.exp(-DividedValue);
-            //System.out.println("Energy difference " + (i + 1) + ": " + xValues[i]);
-        }
+        double reciprocal = 1.0 / (K * T);
+
+        int i = 0;
+        do {
+            if (i < epsilon.length) {
+                Energy_Differences[i] = epsilon[i] - c;
+                // Replaced the division operation by multiplication with the pre-computed reciprocal
+                double DividedValue = Energy_Differences[i] * reciprocal;
+                X_Values[i] = Math.exp(-DividedValue);
+                i++;
+            }
+        } while (i < epsilon.length);
 
         double q;  // partition function
         try {
@@ -23,13 +28,12 @@ public class Equation {
         } catch (Exception e) {
             System.err.println("Error in summation using Kahan algorithm: " + e.getMessage());
             e.printStackTrace();
-            return new double[0]; // Return an empty array to indicate failure
+            return new double[0];
         }
 
         double[] Normalized_X_Values = new double[X_Values.length];
-
-        for (int i = 0; i < X_Values.length; ++i) {
-            Normalized_X_Values[i] = X_Values[i] / q;
+        for (int j = 0; j < X_Values.length; ++j) {
+            Normalized_X_Values[j] = X_Values[j] / q;
         }
 
         return Normalized_X_Values;
@@ -87,4 +91,21 @@ double SumOfValuesKahan=GetSumKahan(realization);
 
 
 
+/*
 
+Unoptimized Equation: (multiplication and division are resource intensive)
+
+        for (int i = 0; i < epsilon.length; ++i) {
+            Energy_Differences[i] = epsilon[i] - c;
+            //System.out.println(energyDifferences[i]);
+            double DividedValue = Energy_Differences[i] / (K * T);
+            //System.out.println("Energy difference " + (i + 1) + ": " + dividedValue);
+            X_Values[i] = Math.exp(-DividedValue);
+            //System.out.println("Energy difference " + (i + 1) + ": " + xValues[i]);
+        }
+
+
+
+
+
+ */

@@ -56,24 +56,53 @@ public class DataOrganizer {
             }
             ProcessedData.add(processedRow);
         }
-
         return ProcessedData;
     }
 
-
     public static List<List<Object>> RemoveDuplicatesWithinProcessedData(List<List<Object>> processed_data) {
+        Map<List<Object>, List<Integer>> DuplicatesMap = new HashMap<>(); // Map1 to track duplicates and their indices
+        Map<List<Object>, Integer> FirstOccurrenceMap = new HashMap<>();  // Map2 to track the first occurrence of each key
         Set<List<Object>> seen = new HashSet<>();
         List<List<Object>> DeduplicatedData = new ArrayList<>();
 
-        for (List<Object> row : processed_data) {
-            // Use the first 3 columns (indices 1 to 3) for checking for duplicates
+        for (int i = 0; i < processed_data.size(); i++) {
+            List<Object> row = processed_data.get(i);
+            // Use the first 3 columns in excel (indices 1 to 3) for checking for duplicates
             List<Object> key = row.subList(1, 4);
+
             if (!seen.contains(key)) {
                 seen.add(key);
-                DeduplicatedData.add(row);
+                DeduplicatedData.add(row); // Add the first occurrence to deduplicated data
+                FirstOccurrenceMap.put(key, i); // Store the first occurrence index
+            } else {
+                DuplicatesMap.computeIfAbsent(key, k -> new ArrayList<>()).add(i); // Track duplicate indices
             }
         }
+
+        if (DuplicatesMap.isEmpty()) {
+            System.out.println("No duplicates found. Goodnight, everybody!");
+        } else {
+            System.out.println("********** Duplicates Caught **********");
+            int counter = 1;
+            for (Map.Entry<List<Object>, List<Integer>> entry : DuplicatesMap.entrySet()) {
+                List<Object> DuplicateKey = entry.getKey();
+                List<Integer> indices = entry.getValue();
+                int firstIndex = FirstOccurrenceMap.get(DuplicateKey);
+
+                System.out.println("\n(" + counter + ") Duplicate key: " + DuplicateKey);
+                System.out.println("This structure appears " + (indices.size() + 1) + " times in the original dataset.");
+                System.out.println("The first occurrence is at line index: " + (firstIndex + 2));
+                System.out.println("This structure is also found duplicated at the following line(s):");
+                for (int index : indices) {
+                    System.out.println("  - At index: " + (index + 2));
+                }
+                counter++;
+
+            }
+            System.out.println("****************************************");
+        }
         return DeduplicatedData;
+
     }
 
     public static List<List<Object>> MergeSort(List<List<Object>> data, int columnIndex) {
@@ -84,14 +113,12 @@ public class DataOrganizer {
         int mid = data.size() / 2;
         List<List<Object>> left = MergeSort(data.subList(0, mid), columnIndex);
         List<List<Object>> right = MergeSort(data.subList(mid, data.size()), columnIndex);
-
         return merge(left, right, columnIndex);
     }
 
     private static List<List<Object>> merge(List<List<Object>> left, List<List<Object>> right, int columnIndex) {
         List<List<Object>> merged = new ArrayList<>();
         int i = 0, j = 0;
-
         while (i < left.size() && j < right.size()) {
             if ((double) left.get(i).get(columnIndex) <= (double) right.get(j).get(columnIndex)) {
                 merged.add(left.get(i++));
@@ -99,11 +126,9 @@ public class DataOrganizer {
                 merged.add(right.get(j++));
             }
         }
-
         while (i < left.size()) {
             merged.add(left.get(i++));
         }
-
         while (j < right.size()) {
             merged.add(right.get(j++));
         }
