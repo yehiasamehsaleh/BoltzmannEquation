@@ -13,15 +13,16 @@ public class DataOrganizer {
 
     public static String SimilarityGrouping(double number, double tolerance) {
         Map<String, List<double[]>> ranges = new LinkedHashMap<String, List<double[]>>() {{
-            put("Group 1", Collections.singletonList(new double[]{-30, 0}));
-            put("Group 2", Collections.singletonList(new double[]{0, 30}));
-            put("Group 3", Collections.singletonList(new double[]{30, 60}));
+
+            put("Group 1", Collections.singletonList(new double[]{-150, -120}));
+            put("Group 2", Collections.singletonList(new double[]{-120, -90}));
+            put("Group 3", Collections.singletonList(new double[]{-90, -60}));
             put("Group 4", Collections.singletonList(new double[]{-60, -30}));
-            put("Group 5", Collections.singletonList(new double[]{60, 90}));
-            put("Group 6", Collections.singletonList(new double[]{-90, -60}));
-            put("Group 7", Collections.singletonList(new double[]{-120, -90}));
-            put("Group 8", Collections.singletonList(new double[]{90, 120}));
-            put("Group 9", Collections.singletonList(new double[]{-150, -120}));
+            put("Group 5", Collections.singletonList(new double[]{-30, 0}));
+            put("Group 6", Collections.singletonList(new double[]{0, 30}));
+            put("Group 7", Collections.singletonList(new double[]{30, 60}));
+            put("Group 8", Collections.singletonList(new double[]{60, 90}));
+            put("Group 9", Collections.singletonList(new double[]{90, 120}));
             put("Group 10", Collections.singletonList(new double[]{120, 150}));
             put("Group 11", Arrays.asList(new double[]{-181, -150}, new double[]{150, 181}));
         }};
