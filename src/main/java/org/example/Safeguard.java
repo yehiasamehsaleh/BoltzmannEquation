@@ -7,15 +7,19 @@ import java.util.regex.Pattern;
 
 public class Safeguard {
 
-    private static final Pattern VALID_INPUT_PATTERN = Pattern.compile("^[a-zA-Z0-9-_\\s/.]+$");
-    public static void validateFilePath(String filePath) {
+    private static final Pattern VALID_INPUT_PATTERN = Pattern.compile("^[a-zA-Z0-9-_\\s/.:\\\\]+$");
+    public static String validateFilePath(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
             throw new IllegalArgumentException("File path cannot be null or empty.");
+
         }
+        filePath = filePath.trim();
+
         if (!filePath.endsWith(".csv")) {
             throw new IllegalArgumentException("File must have a .csv extension.");
         }
         Path path = Paths.get(filePath);
+
         if (!Files.exists(path)) {
             throw new IllegalArgumentException("File does not exist: " + filePath);
         }
@@ -32,6 +36,8 @@ public class Safeguard {
                     "  ...\n" +
                     "\n3.The file could be open or inaccessible: " + filePath);
         }
+        return path.normalize().toString(); // Return the sanitized and normalized path
+
     }
     public static void validateUserInput(String userInput) {
         if (!VALID_INPUT_PATTERN.matcher(userInput).matches()) {
