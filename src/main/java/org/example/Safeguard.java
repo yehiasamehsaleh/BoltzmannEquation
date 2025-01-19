@@ -36,7 +36,7 @@ public class Safeguard {
                     "  ...\n" +
                     "\n3.The file could be open or inaccessible: " + filePath);
         }
-        return path.normalize().toString(); // Return the sanitized and normalized path
+        return path.normalize().toString(); // Return the sanitized path
 
     }
     public static void validateUserInput(String userInput) {
