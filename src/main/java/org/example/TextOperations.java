@@ -10,7 +10,6 @@ import java.util.Locale;
 
 public class TextOperations {
 
-    // Method to write to a text file
     public static void WriteToTextFile(List<List<Object>> sortedData, String FileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FileName))) {
 
@@ -23,8 +22,8 @@ public class TextOperations {
                 String T1 = row.get(1).toString();
                 String T2 = row.get(2).toString();
                 String T3 = row.get(3).toString();
-                String E = formatDouble((Double) row.get(4));  // Formatting value
-                String Boltzmann = formatDouble((Double) row.get(5));  // Formatting metric
+                String E = formatDouble((Double) row.get(4));
+                String Boltzmann = formatDouble((Double) row.get(5));
 
                 String Header = String.format("%-8s%-12s%-12s%-12s%-12s%-12s", index, T1, T2, T3, E, Boltzmann);
                 writer.write(Header);
@@ -42,7 +41,7 @@ public class TextOperations {
         if (value == null) {
             return "";
         }
-        return String.format(Locale.US, "%.6f", value);  // Change this if you decide to change the precision
+        return String.format(Locale.US, "%.6f", value);  // Change this if you decide to assign the precision
     }
 
     public static void WriteToExcel(List<List<Object>> SortedData, String FileName) {
@@ -62,14 +61,13 @@ public class TextOperations {
             Row headerRow = sheet.createRow(0);
             String[] headers = {"Index", "T1", "T2", "T3", "△E", "Boltzmann"};
 
-            // Creating header row
+            // Carefully creating header row
             for (int col = 0; col < headers.length; col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(headers[col]);
                 cell.setCellStyle(CreateHeaderStyle(workbook));
             }
 
-            // Writing data rows
             int prevIndex = -1;
             for (int rowIdx = 0; rowIdx < SortedData.size(); rowIdx++) {
                 Row row = sheet.createRow(rowIdx + 1);
