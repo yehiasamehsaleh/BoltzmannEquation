@@ -105,7 +105,6 @@ public class DataOrganizer {
             System.out.println("| Group   | Ranges                            |");
             System.out.println("+---------+-----------------------------------+");
 
-            // Dynamically generate the ranges table
             for (Range range : Ranges) {
                 StringBuilder rangeValues = new StringBuilder();
                 for (double[] limit : range.limits) {
@@ -145,11 +144,3 @@ public class DataOrganizer {
         return data;
     }
 }
-
-
-
-
-
-
-
-
