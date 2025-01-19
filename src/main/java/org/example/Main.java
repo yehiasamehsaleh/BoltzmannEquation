@@ -19,9 +19,9 @@ public class Main {
             SampleData = TextOperations.ConvertCSVToArray(File_Path);
             DataOrganizer processor = new DataOrganizer(SampleData, 3);
 
-            List<List<Object>> ProcessedData = processor.ProcessData();
-            List<List<Object>> DeduplicatedData = DataOrganizer.RemoveDuplicatesWithinProcessedData(ProcessedData);
-            List<List<Object>> SortedData = DataOrganizer.MergeSort(DeduplicatedData, 4);
+            List<List<Object>> DecimalAccuracyGuarantor  = processor.Accuracy();
+            List<List<Object>> DeduplicatedData = DataOrganizer.RemoveDuplicatesWithinProcessedData(DecimalAccuracyGuarantor); // Kahan's summation algorithm
+            List<List<Object>> SortedData = DataOrganizer.TimSort(DeduplicatedData, 4);
 
             List<Double> EpsilonValues = new ArrayList<>();
             for (List<Object> row : SortedData) {
@@ -57,32 +57,7 @@ public class Main {
 }
 
 /*
-
         CMD:
         java -cp "C:\Users\saleh\javaSamples\21\MB\libs\*;C:\Users\saleh\javaSamples\21\MB\target\classes" org.example.Main
 
-
-        Compiler:
-            String FilePath = "Example2.csv";
-            double[][] Sample_Data = TextOperations.ConvertCSVToArray(FilePath);
-            for (double[] row : Sample_Data) {
-                System.out.println(Arrays.toString(row));
-            }
-        scanner.close();
-
-
-        for (List<Object> row : SortedData) {
-            System.out.println(row);
-        }
-
-        CSVToArrayConverter.main(null);
-
-
-
-*/
-
-/*
-            for (int i = 0; i < SortedData.size(); i++) {
-                SortedData.get(i).add(metrics[i]);
-            }
-*/
+ */
