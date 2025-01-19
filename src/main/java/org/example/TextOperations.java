@@ -12,7 +12,7 @@ public class TextOperations {
 
     public static void WriteToTextFile(List<List<Object>> sortedData, String FileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FileName))) {
-
+            
             String header = String.format("%-8s%-12s%-12s%-12s%-12s%-12s", "Index", "T1", "T2", "T3", "△E", "Boltzmann");
             writer.write(header);
             writer.newLine();
@@ -24,7 +24,6 @@ public class TextOperations {
                 String T3 = row.get(3).toString();
                 String E = formatDouble((Double) row.get(4));
                 String Boltzmann = formatDouble((Double) row.get(5));
-
                 String Header = String.format("%-8s%-12s%-12s%-12s%-12s%-12s", index, T1, T2, T3, E, Boltzmann);
                 writer.write(Header);
                 writer.newLine();
@@ -47,7 +46,6 @@ public class TextOperations {
     public static void WriteToExcel(List<List<Object>> SortedData, String FileName) {
         File file = new File(FileName);
 
-        // Check if file exists, and delete if it does
         if (file.exists()) {
             if (file.delete()) {
                 System.out.println("Preexisting file detected and deleted: " + FileName);
@@ -78,7 +76,6 @@ public class TextOperations {
                     Row previousRow = sheet.getRow(rowIdx);
                     BoldStyleToRow(previousRow, workbook);
                 }
-
                 for (int colIdx = 0; colIdx < DataRow.size(); colIdx++) {
                     Cell cell = row.createCell(colIdx);
                     Object value = DataRow.get(colIdx);
@@ -90,7 +87,7 @@ public class TextOperations {
                         cell.setCellValue((String) value);
                     }
                 }
-
+                
                 prevIndex = currentIndex;
             }
 
