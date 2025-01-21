@@ -36,22 +36,22 @@ public class Main {
 
     private static List<List<Object>> processData(String filePath) throws IOException {
         double[][] sampleData = TextOperations.ConvertCSVToArray(filePath);
-        
+
         DataOrganizer processor = new DataOrganizer(sampleData, 3);
         List<List<Object>> decimalAccuracyGuarantor = processor.DecimalNumbersGrouping();
-        List<List<Object>> deduplicatedData = DataOrganizer.DeduplicateAndSort(decimalAccuracyGuarantor, 4);
-        List<Double> epsilonValues = deduplicatedData.stream()
+        List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(decimalAccuracyGuarantor, 4);
+        List<Double> epsilonValues = DeduplicatedData.stream()
                 .map(row -> (Double) row.get(4))
                 .collect(Collectors.toList());
-        
+
         double[] epsilonArray = epsilonValues.stream().mapToDouble(Double::doubleValue).toArray();
         double[] values = Equation.CalculatePartitionFunction(epsilonArray);
 
-        for (int i = 0; i < deduplicatedData.size(); i++) {
-            deduplicatedData.get(i).add(values[i]);
+        for (int i = 0; i < DeduplicatedData.size(); i++) {
+            DeduplicatedData.get(i).add(values[i]);
         }
 
-        return deduplicatedData;
+        return DeduplicatedData;
     }
 }
 
