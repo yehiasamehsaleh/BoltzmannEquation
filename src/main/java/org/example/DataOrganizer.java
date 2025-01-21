@@ -9,7 +9,7 @@ import java.util.TreeSet;
 public class DataOrganizer {
     private final double[][] data;
     private final int N_Columns;
-    private static final double TOLERANCE = 0.000001; // Used for proper grouping. For Example, 29.999999 would be placed in Group 5 (-30 to 0). While 30.000001 would be placed in Group 6 (0 to 30)
+    private static final double TOLERANCE = 0.000001;    // Used for proper grouping. For Example, 29.999999 would be placed in Group 5 (-30 to 0). While 30.000001 would be placed in Group 6 (0 to 30)
 
     private enum Range {
         GROUP_1("Group 1", -150, -120),
@@ -99,7 +99,7 @@ public class DataOrganizer {
 
         List<List<Object>> sortedData = new ArrayList<>(deduplicatedData);
 
-        sortedData.sort((row1, row2) -> {
+        sortedData.sort((row1, row2) -> {                     // default Timsort
             Object val1 = row1.get(columnIndexForSorting);
             Object val2 = row2.get(columnIndexForSorting);
             return compares(val1, val2);
@@ -108,9 +108,9 @@ public class DataOrganizer {
         return sortedData;
     }
 
-    private static int compares(Object o1, Object o2) {    // default Timsort
+    private static int compares(Object o1, Object o2) {
         if (o1 == null && o2 == null) return 0;
-        if (o1 == null) return 1;  // null values are last
+        if (o1 == null) return 1;                            // null values are last
         if (o2 == null) return -1;
 
         if (!(o1 instanceof Comparable<?> && o2 instanceof Comparable<?>)) {
