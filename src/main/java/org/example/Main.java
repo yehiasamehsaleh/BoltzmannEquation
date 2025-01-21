@@ -1,7 +1,10 @@
 package org.example;
 
+
+import java.util.List;
 import java.util.Scanner;
-import java.util.*;
+import java.io.IOException;
+import java.util.stream.Collectors;
 
 public class Main {
 
@@ -9,51 +12,48 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter the file path: ");
-        String File_Path = scanner.nextLine();
+        String filePath = scanner.nextLine();
 
-        double[][] SampleData;
         try {
-            Safeguard.validateUserInput(File_Path);
-            Safeguard.validateFilePath(File_Path);
+            Safeguard.validateUserInput(filePath);
+            Safeguard.validateFilePath(filePath);
 
-            SampleData = TextOperations.ConvertCSVToArray(File_Path);
-            DataOrganizer processor = new DataOrganizer(SampleData, 3);
+            List<List<Object>> processedData = processData(filePath);
 
-            List<List<Object>> DecimalAccuracyGuarantor  = processor.Accuracy();
-            List<List<Object>> DeduplicatedData = DataOrganizer.RemoveDuplicatesWithinProcessedData(DecimalAccuracyGuarantor); // Kahan's summation algorithm
-            List<List<Object>> SortedData = DataOrganizer.TimSort(DeduplicatedData, 4);
-
-            List<Double> EpsilonValues = new ArrayList<>();
-            for (List<Object> row : SortedData) {
-                EpsilonValues.add((Double) row.get(4));
-            }
-            double[] EpsilonArray = EpsilonValues.stream().mapToDouble(Double::doubleValue).toArray();
-            double[] Values = Equation.CalculatePartitionFunction(EpsilonArray);
-
-            int i = 0;
-            do {
-                if (i < SortedData.size()) {
-                    SortedData.get(i).add(Values[i]);
-                    i++;
-                }
-            } while (i < SortedData.size());
-
-            scanner.close();
             System.out.println("Processed Data in Ascending Order by △E.");
-            TextOperations.WriteToExcel(SortedData, "Result.xlsx");
-            TextOperations.WriteToTextFile(SortedData, "Result.txt");
+            TextOperations.WriteToExcel(processedData, "Result.xlsx");
+            TextOperations.WriteToTextFile(processedData, "Result.txt");
 
         } catch (NumberFormatException e) {
-            System.err.println("Error: The file contains invalid numeric data. Please check the file content.");
+            System.err.println("Error: The file contains invalid numeric data. Check the file content.");
         } catch (IllegalArgumentException e) {
-            System.out.println("Error: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("An unexpected error occurred while processing the file: " + e.getMessage());
+            System.err.println("Error: " + e.getMessage());
+        } catch (IOException e) {
+            System.err.println("Error: An I/O error occurred while processing the file: " + e.getMessage());
         } finally {
             scanner.close();
         }
     }
 
+    private static List<List<Object>> processData(String filePath) throws IOException {
+        double[][] sampleData = TextOperations.ConvertCSVToArray(filePath);
+        
+        DataOrganizer processor = new DataOrganizer(sampleData, 3);
+        List<List<Object>> decimalAccuracyGuarantor = processor.DecimalNumbersGrouping();
+        List<List<Object>> deduplicatedData = DataOrganizer.DeduplicateAndSort(decimalAccuracyGuarantor, 4);
+        List<Double> epsilonValues = deduplicatedData.stream()
+                .map(row -> (Double) row.get(4))
+                .collect(Collectors.toList());
+        
+        double[] epsilonArray = epsilonValues.stream().mapToDouble(Double::doubleValue).toArray();
+        double[] values = Equation.CalculatePartitionFunction(epsilonArray);
+
+        for (int i = 0; i < deduplicatedData.size(); i++) {
+            deduplicatedData.get(i).add(values[i]);
+        }
+
+        return deduplicatedData;
+    }
 }
 
 /*
