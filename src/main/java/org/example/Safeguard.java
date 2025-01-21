@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 public class Safeguard {
 
     private static final Pattern VALID_INPUT_PATTERN = Pattern.compile("^[a-zA-Z0-9-_\\s/.:\\\\]+$");
-    public static String validateFilePath(String filePath) {
+    public static String ValidateFilePath(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
             throw new IllegalArgumentException("File path cannot be null or empty.");
         }
@@ -38,7 +38,7 @@ public class Safeguard {
         return path.normalize().toString(); // Return the sanitized path
 
     }
-    public static void validateUserInput(String userInput) {
+    public static void ValidateUserInput(String userInput) {
         if (!VALID_INPUT_PATTERN.matcher(userInput).matches()) {
             throw new IllegalArgumentException("Invalid user input. Please enter a valid string.");
         }
