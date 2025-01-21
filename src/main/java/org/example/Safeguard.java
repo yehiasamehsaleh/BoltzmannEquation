@@ -11,7 +11,6 @@ public class Safeguard {
     public static String validateFilePath(String filePath) {
         if (filePath == null || filePath.isEmpty()) {
             throw new IllegalArgumentException("File path cannot be null or empty.");
-
         }
         filePath = filePath.trim();
 
