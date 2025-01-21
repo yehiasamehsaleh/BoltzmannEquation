@@ -34,7 +34,7 @@ public class DataOrganizer {
             }
         }
 
-        public boolean contains(double number, double tolerance) {
+        public boolean Content(double number, double tolerance) {
             return limits.stream().anyMatch(limit ->
                     number >= limit[0] - tolerance && number < limit[1] + tolerance);
         }
@@ -55,7 +55,7 @@ public class DataOrganizer {
         }
 
         return Arrays.stream(Range.values())
-                .filter(group -> group.contains(number, tolerance))
+                .filter(group -> group.Content(number, tolerance))
                 .findFirst()
                 .map(Range::getLabel)
                 .orElse(null);
@@ -87,7 +87,7 @@ public class DataOrganizer {
 
         TreeSet<List<Object>> deduplicatedData = new TreeSet<>((row1, row2) -> {
             for (int i = 1; i <= 3; i++) {
-                int comparison = compares(row1.get(i), row2.get(i));
+                int comparison = Similarity(row1.get(i), row2.get(i));
                 if (comparison != 0) {
                     return comparison;
                 }
@@ -106,13 +106,13 @@ public class DataOrganizer {
             if (val1 == null) return 1;  // null values are last
             if (val2 == null) return -1;
 
-            return compares(val1, val2);
+            return Similarity(val1, val2);
         });
 
         return sortedData;
     }
 
-    private static int compares(Object o1, Object o2) {
+    private static int Similarity(Object o1, Object o2) {
         if (o1 == null && o2 == null) return 0;
         if (o1 == null) return 1;  // null values are last
         if (o2 == null) return -1;
