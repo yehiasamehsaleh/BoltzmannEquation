@@ -102,18 +102,13 @@ public class DataOrganizer {
         sortedData.sort((row1, row2) -> {
             Object val1 = row1.get(columnIndexForSorting);
             Object val2 = row2.get(columnIndexForSorting);
-
-            if (val1 == null && val2 == null) return 0;
-            if (val1 == null) return 1;  // null values are last
-            if (val2 == null) return -1;
-
             return compares(val1, val2);
         });
 
         return sortedData;
     }
 
-    private static int compares(Object o1, Object o2) {
+    private static int compares(Object o1, Object o2) {    // default Timsort
         if (o1 == null && o2 == null) return 0;
         if (o1 == null) return 1;  // null values are last
         if (o2 == null) return -1;
