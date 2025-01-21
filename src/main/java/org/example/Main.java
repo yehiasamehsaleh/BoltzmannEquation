@@ -17,11 +17,11 @@ public class Main {
             Safeguard.validateUserInput(filePath);
             Safeguard.validateFilePath(filePath);
 
-            List<List<Object>> processedData = processData(filePath);
+            List<List<Object>> ProcessedData = DataOperations(filePath);
 
             System.out.println("Processed Data in Ascending Order by △E.");
-            TextOperations.WriteToExcel(processedData, "Result.xlsx");
-            TextOperations.WriteToTextFile(processedData, "Result.txt");
+            TextOperations.WriteToExcel(ProcessedData, "Result.xlsx");
+            TextOperations.WriteToTextFile(ProcessedData, "Result.txt");
 
         } catch (NumberFormatException e) {
             System.err.println("Error: The file contains invalid numeric data. Check the file content.");
@@ -34,12 +34,12 @@ public class Main {
         }
     }
 
-    private static List<List<Object>> processData(String filePath) throws IOException {
+    private static List<List<Object>> DataOperations (String filePath) throws IOException {
         double[][] sampleData = TextOperations.ConvertCSVToArray(filePath);
 
         DataOrganizer processor = new DataOrganizer(sampleData, 3);
-        List<List<Object>> decimalAccuracyGuarantor = processor.DecimalNumbersGrouping();
-        List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(decimalAccuracyGuarantor, 4);
+        List<List<Object>> DecimalAccuracy = processor.DecimalNumbersGrouping();
+        List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(DecimalAccuracy, 4);
         List<Double> epsilonValues = DeduplicatedData.stream()
                 .map(row -> (Double) row.get(4))
                 .collect(Collectors.toList());
