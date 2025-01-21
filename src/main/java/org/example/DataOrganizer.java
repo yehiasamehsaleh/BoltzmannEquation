@@ -3,33 +3,27 @@ package org.example;
 import java.util.*;
 
 public class DataOrganizer {
-    private double[][] data;
-    private int N_Columns;
+    private final double[][] data;
+    private final int N_Columns;
+    private static final double TOLERANCE = 0.000001; // Used for proper grouping. For Example, 29.999999 would be placed in Group 5 (-30 to 0). While 30.000001 would be placed in Group 6 (0 to 30)
 
-    public DataOrganizer(double[][] data, int numColumns) {
-        this.data = data;
-        this.N_Columns = numColumns;
-    }
+    private enum Range {
+        GROUP_1("Group 1", -150, -120),
+        GROUP_2("Group 2", -120, -90),
+        GROUP_3("Group 3", -90, -60),
+        GROUP_4("Group 4", -60, -30),
+        GROUP_5("Group 5", -30, 0),
+        GROUP_6("Group 6", 0, 30),
+        GROUP_7("Group 7", 30, 60),
+        GROUP_8("Group 8", 60, 90),
+        GROUP_9("Group 9", 90, 120),
+        GROUP_10("Group 10", 120, 150),
+        GROUP_11("Group 11", -181, -150, 150, 181);
 
-    private static final List<Range> Ranges = Arrays.asList(
-            new Range("Group 1", -150, -120),
-            new Range("Group 2", -120, -90),
-            new Range("Group 3", -90, -60),
-            new Range("Group 4", -60, -30),
-            new Range("Group 5", -30, 0),
-            new Range("Group 6", 0, 30),
-            new Range("Group 7", 30, 60),
-            new Range("Group 8", 60, 90),
-            new Range("Group 9", 90, 120),
-            new Range("Group 10", 120, 150),
-            new Range("Group 11", -181, -150, 150, 181) // Handles two disjoint ranges
-    );
+        private final String label;
+        private final List<double[]> limits;
 
-    static class Range {
-        String label;
-        List<double[]> limits;
-
-        public Range(String label, double... limits) {
+        Range(String label, double... limits) {
             this.label = label;
             this.limits = new ArrayList<>();
             for (int i = 0; i < limits.length; i += 2) {
@@ -38,27 +32,33 @@ public class DataOrganizer {
         }
 
         public boolean contains(double number, double tolerance) {
-            for (double[] limit : limits) {
-                double lower = limit[0];
-                double upper = limit[1];
-                if (number >= lower - tolerance && number < upper + tolerance) {
-                    return true;
-                }
-            }
-            return false;
+            return limits.stream().anyMatch(limit ->
+                    number >= limit[0] - tolerance && number < limit[1] + tolerance);
+        }
+
+        public String getLabel() {
+            return label;
         }
     }
 
-    public static String SimilarityGrouping(double number, double tolerance) {
-        for (Range range : Ranges) {
-            if (range.contains(number, tolerance)) {
-                return range.label;
-            }
-        }
-        return null; // No matching group
+    public DataOrganizer(double[][] data, int numColumns) {
+        this.data = data;
+        this.N_Columns = numColumns;
     }
 
-    public List<List<Object>> Accuracy() {
+    public static String SimilarityGrouping(Double number, double tolerance) {
+        if (number == null) {
+            return null;
+        }
+
+        return Arrays.stream(Range.values())
+                .filter(group -> group.contains(number, tolerance))
+                .findFirst()
+                .map(Range::getLabel)
+                .orElse(null);
+    }
+
+    public List<List<Object>> DecimalNumbersGrouping() {
         List<List<Object>> ProcessedData = new ArrayList<>();
 
         for (int index = 0; index < data.length; index++) {
@@ -68,7 +68,7 @@ public class DataOrganizer {
 
             for (int i = 0; i < row.length; i++) {
                 if (i < N_Columns) {
-                    processedRow.add(SimilarityGrouping(row[i], 0.000001));
+                    processedRow.add(SimilarityGrouping(row[i], TOLERANCE));
                 } else {
                     processedRow.add(row[i]);
                 }
@@ -78,69 +78,47 @@ public class DataOrganizer {
         return ProcessedData;
     }
 
+    public static List<List<Object>> DeduplicateAndSort(
+            List<List<Object>> processedData,
+            int columnIndexForSorting) {
 
-    public static List<List<Object>> RemoveDuplicatesWithinProcessedData(List<List<Object>> processed_data) {
-        Map<List<Object>, List<Integer>> DuplicatesMap = new HashMap<>();
-        Map<List<Object>, Integer> FirstOccurrenceMap = new HashMap<>();
-        Set<List<Object>> seen = new HashSet<>();
-        List<List<Object>> DeduplicatedData = new ArrayList<>();
-
-        for (int i = 0; i < processed_data.size(); i++) {
-            List<Object> row = processed_data.get(i);
-            List<Object> key = row.subList(1, 4);
-
-            if (!seen.contains(key)) {
-                seen.add(key);
-                DeduplicatedData.add(row);
-                FirstOccurrenceMap.put(key, i);
-            } else {
-                DuplicatesMap.computeIfAbsent(key, k -> new ArrayList<>()).add(i);
-            }
-        }
-
-        if (DuplicatesMap.isEmpty()) {
-            System.out.println("No duplicates found. Goodnight, everybody!");
-        } else {
-            System.out.println("+---------+-----------------------------------+");
-            System.out.println("| Group   | Ranges                            |");
-            System.out.println("+---------+-----------------------------------+");
-
-            for (Range range : Ranges) {
-                StringBuilder rangeValues = new StringBuilder();
-                for (double[] limit : range.limits) {
-                    rangeValues.append(Arrays.toString(limit)).append(" ");
+        TreeSet<List<Object>> deduplicatedData = new TreeSet<>((row1, row2) -> {
+            for (int i = 1; i <= 3; i++) {
+                int comparison = compares(row1.get(i), row2.get(i));
+                if (comparison != 0) {
+                    return comparison;
                 }
-                System.out.printf("| %-7s | %-35s |\n", range.label, rangeValues.toString().trim());
             }
+            return 0;
+        });
+        deduplicatedData.addAll(processedData);
 
-            System.out.println("+---------+-----------------------------------+");
-            System.out.println("********** Duplicates Caught **********");
-            int counter = 1;
-            for (Map.Entry<List<Object>, List<Integer>> entry : DuplicatesMap.entrySet()) {
-                List<Object> DuplicateKey = entry.getKey();
-                List<Integer> indices = entry.getValue();
-                int firstIndex = FirstOccurrenceMap.get(DuplicateKey);
+        List<List<Object>> sortedData = new ArrayList<>(deduplicatedData);
 
-                System.out.println("\n(" + counter + ") Duplicate key: " + DuplicateKey);
-                System.out.println("This structure appears " + (indices.size() + 1) + " times in the original dataset.");
-                System.out.println("The first occurrence is at line index: " + (firstIndex + 2));
-                System.out.println("This structure is also found duplicated at the following line(s):");
-                for (int index : indices) {
-                    System.out.println("  - At index: " + (index + 2));
-                }
-                counter++;
-            }
-            System.out.println("****************************************");
-        }
-        return DeduplicatedData;
+        sortedData.sort((row1, row2) -> {
+            Object val1 = row1.get(columnIndexForSorting);
+            Object val2 = row2.get(columnIndexForSorting);
+
+            if (val1 == null && val2 == null) return 0;
+            if (val1 == null) return 1;  // null values are last
+            if (val2 == null) return -1;
+
+            return compares(val1, val2);
+        });
+
+        return sortedData;
     }
 
-    public static List<List<Object>> TimSort(List<List<Object>> data, int columnIndex) {
-        Collections.sort(data, (row1, row2) -> {
-            double value1 = (double) row1.get(columnIndex);
-            double value2 = (double) row2.get(columnIndex);
-            return Double.compare(value1, value2);
-        });
-        return data;
+    private static int compares(Object o1, Object o2) {
+        if (o1 == null && o2 == null) return 0;
+        if (o1 == null) return 1;  // null values are last
+        if (o2 == null) return -1;
+
+        if (!(o1 instanceof Comparable<?> && o2 instanceof Comparable<?>)) {
+            throw new IllegalArgumentException(
+                    "Non-comparable objects found: " + o1 + ", " + o2);
+        }
+        return ((Comparable<Object>) o1).compareTo(o2);
     }
 }
+
