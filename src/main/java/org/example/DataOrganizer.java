@@ -10,6 +10,7 @@ public class DataOrganizer {
     private final int N_Columns;
     private static final double TOLERANCE = 0.000001; // Used for proper grouping. For Example, 29.999999 would be placed in Group 5 (-30 to 0). While 30.000001 would be placed in Group 6 (0 to 30)
 
+
     private enum Range {
         GROUP_1("Group 1", -150, -120),
         GROUP_2("Group 2", -120, -90),
@@ -34,7 +35,7 @@ public class DataOrganizer {
             }
         }
 
-        public boolean Content(double number, double tolerance) {
+        public boolean contains(double number, double tolerance) {
             return limits.stream().anyMatch(limit ->
                     number >= limit[0] - tolerance && number < limit[1] + tolerance);
         }
@@ -45,8 +46,19 @@ public class DataOrganizer {
     }
 
     public DataOrganizer(double[][] data, int numColumns) {
+        if (data == null || data.length == 0 || numColumns <= 0) {
+            throw new IllegalArgumentException("Invalid data or number of columns.");
+        }
+
         this.data = data;
         this.N_Columns = numColumns;
+
+        int rowLength = data[0].length;
+        for (int i = 1; i < data.length; i++) {
+            if (data[i].length != rowLength) {
+                throw new IllegalArgumentException("Improper row lengths in input data.");
+            }
+        }
     }
 
     public static String SimilarityGrouping(Double number, double tolerance) {
@@ -55,14 +67,14 @@ public class DataOrganizer {
         }
 
         return Arrays.stream(Range.values())
-                .filter(group -> group.Content(number, tolerance))
+                .filter(group -> group.contains(number, tolerance))
                 .findFirst()
                 .map(Range::getLabel)
                 .orElse(null);
     }
 
     public List<List<Object>> DecimalNumbersGrouping() {
-        List<List<Object>> ProcessedData = new ArrayList<>();
+        List<List<Object>> groups = new ArrayList<>(data.length);
 
         for (int index = 0; index < data.length; index++) {
             double[] row = data[index];
@@ -70,31 +82,29 @@ public class DataOrganizer {
             processedRow.add(index);
 
             for (int i = 0; i < row.length; i++) {
-                if (i < N_Columns) {
-                    processedRow.add(SimilarityGrouping(row[i], TOLERANCE));
-                } else {
-                    processedRow.add(row[i]);
-                }
+                processedRow.add(i < N_Columns ? SimilarityGrouping(row[i], TOLERANCE) : row[i]);
             }
-            ProcessedData.add(processedRow);
+            groups.add(processedRow);
         }
-        return ProcessedData;
+
+        return groups;
     }
 
-    public static List<List<Object>> DeduplicateAndSort(
-            List<List<Object>> RawData,
-            int columnIndexForSorting) {
+    public static List<List<Object>> DeduplicateAndSort(List<List<Object>> rawData, int columnIndexForSorting) {
+        if (rawData == null || rawData.isEmpty()) {
+            return new ArrayList<>(); // Return empty list
+        }
 
         TreeSet<List<Object>> deduplicatedData = new TreeSet<>((row1, row2) -> {
             for (int i = 1; i <= 3; i++) {
-                int comparison = Similarity(row1.get(i), row2.get(i));
+                int comparison = CompareObjects(row1.get(i), row2.get(i));
                 if (comparison != 0) {
                     return comparison;
                 }
             }
             return 0;
         });
-        deduplicatedData.addAll(RawData);
+        deduplicatedData.addAll(rawData);
 
         List<List<Object>> sortedData = new ArrayList<>(deduplicatedData);
 
@@ -106,22 +116,25 @@ public class DataOrganizer {
             if (val1 == null) return 1;  // null values are last
             if (val2 == null) return -1;
 
-            return Similarity(val1, val2);
+            return CompareObjects(val1, val2);
         });
 
+        deduplicatedData.clear(); // Limit Data Retention.To ensure intermediate data is cleared or dereferenced when it is no longer needed.
+        rawData.clear();
         return sortedData;
     }
 
-    private static int Similarity(Object o1, Object o2) {
+    private static int CompareObjects(Object o1, Object o2) {
         if (o1 == null && o2 == null) return 0;
-        if (o1 == null) return 1;  // null values are last
+        if (o1 == null) return 1;
         if (o2 == null) return -1;
 
         if (!(o1 instanceof Comparable<?> && o2 instanceof Comparable<?>)) {
-            throw new IllegalArgumentException(
-                    "Non-comparable objects found: " + o1 + ", " + o2);
+            throw new IllegalArgumentException("Non-comparable objects found: " + o1 + ", " + o2);
         }
         return ((Comparable<Object>) o1).compareTo(o2);
     }
 }
+
+
 
