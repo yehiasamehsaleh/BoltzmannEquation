@@ -45,8 +45,6 @@ public class Main {
                 .map(row -> (Double) row.get(4))
                 .collect(Collectors.toList());
 
-
-
         double[] epsilonArray = DeduplicatedData.stream()
                 .mapToDouble(row -> (Double) row.get(4))
                 .toArray();
