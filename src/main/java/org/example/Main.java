@@ -31,7 +31,7 @@ public class Main {
             System.err.println("Critical Error: Out of Memory! Unable to complete processing.");
             System.exit(1);
         } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage()); // More descriptive message
+            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 
@@ -50,11 +50,10 @@ public class Main {
                 .toArray();
 
         double[] values = Equation.CalculatePartitionFunction(epsilonArray);
-
+        
         for (int i = 0; i < DeduplicatedData.size(); i++) {
             DeduplicatedData.get(i).add(values[i]);
         }
-
         return DeduplicatedData;
     }
 }
