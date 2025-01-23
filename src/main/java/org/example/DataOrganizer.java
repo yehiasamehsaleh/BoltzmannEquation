@@ -36,8 +36,7 @@ public class DataOrganizer {
         }
 
         public boolean contains(double number, double tolerance) {
-            return limits.stream().anyMatch(limit ->
-                    number >= limit[0] - tolerance && number < limit[1] + tolerance);
+            return limits.stream().anyMatch(limit -> number >= limit[0] - tolerance && number < limit[1] + tolerance);
         }
 
         public String getLabel() {
