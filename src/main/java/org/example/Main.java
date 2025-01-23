@@ -18,12 +18,12 @@ public class Main {
             List<List<Object>> ProcessedData = null;
             String cacheFileName = "processedData.ser";
             try {
-                ProcessedData = (List<List<Object>>) TextOperations.SerializationHelper.deserialize(cacheFileName);
+                ProcessedData = (List<List<Object>>) TextOperations.Serialization.deserialize(cacheFileName);
 
             } catch (IOException | ClassNotFoundException e) {
                 ProcessedData = DataOperations(filePath);
                 // Serialize the processed data to avoid reprocessing in the future
-                TextOperations.SerializationHelper.serialize(ProcessedData, cacheFileName);
+                TextOperations.Serialization.serialize(ProcessedData, cacheFileName);
             }
 
             System.out.println("Processed Data in Ascending Order by △E.");
