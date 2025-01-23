@@ -12,20 +12,16 @@ public class TextOperations {
 
     public static void WriteToTextFile(List<List<Object>> sortedData, String FileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FileName))) {
-            
+
             String header = String.format("%-8s%-12s%-12s%-12s%-12s%-12s", "Index", "T1", "T2", "T3", "△E", "Boltzmann");
             writer.write(header);
             writer.newLine();
 
             for (List<Object> row : sortedData) {
-                String index = row.get(0).toString();
-                String T1 = row.get(1).toString();
-                String T2 = row.get(2).toString();
-                String T3 = row.get(3).toString();
-                String E = formatDouble((Double) row.get(4));
-                String Boltzmann = formatDouble((Double) row.get(5));
-                String Header = String.format("%-8s%-12s%-12s%-12s%-12s%-12s", index, T1, T2, T3, E, Boltzmann);
-                writer.write(Header);
+                String line = String.format("%-8s%-12s%-12s%-12s%-12s%-12s",
+                        row.get(0), row.get(1), row.get(2), row.get(3),
+                        formatDouble((Double) row.get(4)), formatDouble((Double) row.get(5)));
+                writer.write(line);
                 writer.newLine();
             }
 
@@ -40,7 +36,7 @@ public class TextOperations {
         if (value == null) {
             return "";
         }
-        return String.format(Locale.US, "%.6f", value);  // Change this if you decide to assign the precision
+        return String.format(Locale.US, "%.6f", value);  // Change this to assign the precision
     }
 
     public static void WriteToExcel(List<List<Object>> SortedData, String FileName) {
@@ -87,7 +83,7 @@ public class TextOperations {
                         cell.setCellValue((String) value);
                     }
                 }
-                
+
                 prevIndex = currentIndex;
             }
 
