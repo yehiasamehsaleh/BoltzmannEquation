@@ -9,11 +9,9 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Enter the file path: ");
-        String filePath = scanner.nextLine();
-
-        try {
+        try (Scanner scanner = new Scanner(System.in)) { // Try-with-resources for Scanner
+            System.out.print("Enter the file path: ");
+            String filePath = scanner.nextLine();
             Safeguard.validateUserInput(filePath);
             Safeguard.validateFilePath(filePath);
 
@@ -29,8 +27,11 @@ public class Main {
             System.err.println("Error: " + e.getMessage());
         } catch (IOException e) {
             System.err.println("Error: An I/O error occurred while processing the file: " + e.getMessage());
-        } finally {
-            scanner.close();
+        } catch (OutOfMemoryError e) {
+            System.err.println("Critical Error: Out of Memory! Unable to complete processing.");
+            System.exit(1);
+        } catch (Exception e) {
+            System.err.println("An unexpected error occurred: " + e.getMessage()); // More descriptive message
         }
     }
 
@@ -44,7 +45,12 @@ public class Main {
                 .map(row -> (Double) row.get(4))
                 .collect(Collectors.toList());
 
-        double[] epsilonArray = epsilonValues.stream().mapToDouble(Double::doubleValue).toArray();
+
+
+        double[] epsilonArray = DeduplicatedData.stream()
+                .mapToDouble(row -> (Double) row.get(4))
+                .toArray();
+
         double[] values = Equation.CalculatePartitionFunction(epsilonArray);
 
         for (int i = 0; i < DeduplicatedData.size(); i++) {
