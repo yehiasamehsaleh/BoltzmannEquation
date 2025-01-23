@@ -2,6 +2,7 @@ package org.example;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -147,5 +148,19 @@ public class TextOperations {
 
         // Convert List<double[]> to double[][]
         return Sample_List.toArray(new double[0][]);
+    }
+
+    public class Serialization{
+        public static void serialize(Object obj, String filename) throws IOException {
+            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+                out.writeObject(obj);
+            }
+        }
+
+        public static Object deserialize(String filename) throws IOException, ClassNotFoundException {
+            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+                return in.readObject();
+            }
+        }
     }
 }
