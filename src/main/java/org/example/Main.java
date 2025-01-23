@@ -15,7 +15,16 @@ public class Main {
             Safeguard.validateUserInput(filePath);
             Safeguard.validateFilePath(filePath);
 
-            List<List<Object>> ProcessedData = DataOperations(filePath);
+            List<List<Object>> ProcessedData = null;
+            String cacheFileName = "processedData.ser";
+            try {
+                ProcessedData = (List<List<Object>>) TextOperations.SerializationHelper.deserialize(cacheFileName);
+
+            } catch (IOException | ClassNotFoundException e) {
+                ProcessedData = DataOperations(filePath);
+                // Serialize the processed data to avoid reprocessing in the future
+                TextOperations.SerializationHelper.serialize(ProcessedData, cacheFileName);
+            }
 
             System.out.println("Processed Data in Ascending Order by △E.");
             TextOperations.WriteToExcel(ProcessedData, "Result.xlsx");
@@ -50,10 +59,11 @@ public class Main {
                 .toArray();
 
         double[] values = Equation.CalculatePartitionFunction(epsilonArray);
-        
+
         for (int i = 0; i < DeduplicatedData.size(); i++) {
             DeduplicatedData.get(i).add(values[i]);
         }
+
         return DeduplicatedData;
     }
 }
