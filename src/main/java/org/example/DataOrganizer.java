@@ -10,7 +10,6 @@ public class DataOrganizer {
     private final int N_Columns;
     private static final double TOLERANCE = 0.000001; // Used for proper grouping. For Example, 29.999999 would be placed in Group 5 (-30 to 0). While 30.000001 would be placed in Group 6 (0 to 30)
 
-
     private enum Range {
         GROUP_1("Group 1", -150, -120),
         GROUP_2("Group 2", -120, -90),
@@ -36,7 +35,9 @@ public class DataOrganizer {
         }
 
         public boolean contains(double number, double tolerance) {
+            if (!Double.isFinite(number)) return false; // NUM08-J: Validate input
             return limits.stream().anyMatch(limit -> number >= limit[0] - tolerance && number < limit[1] + tolerance);
+            
         }
 
         public String getLabel() {
@@ -61,7 +62,7 @@ public class DataOrganizer {
     }
 
     public static String SimilarityGrouping(Double number, double tolerance) {
-        if (number == null) {
+        if (number == null || Double.isNaN(number)) { // NUM07-J: Avoid direct comparisons with NaN
             return null;
         }
 
@@ -115,7 +116,7 @@ public class DataOrganizer {
             if (val1 == null) return 1;  // null values are last
             if (val2 == null) return -1;
 
-            return CompareObjects(val1, val2);
+            return CompareObjects(val1, val2);  // default Timsort
         });
 
         deduplicatedData.clear(); // Limit Data Retention.To ensure intermediate data is cleared or dereferenced when it is no longer needed.
@@ -123,7 +124,7 @@ public class DataOrganizer {
         return sortedData;
     }
 
-    private static int CompareObjects(Object o1, Object o2) {  // default Timsort
+    private static int CompareObjects(Object o1, Object o2) {
         if (o1 == null && o2 == null) return 0;
         if (o1 == null) return 1;
         if (o2 == null) return -1;
