@@ -1,6 +1,8 @@
 package org.example;
 
+import java.io.File;
 import java.util.List;
+import java.util.Locale;
 import java.util.Scanner;
 import java.io.IOException;
 import java.util.stream.Collectors;
@@ -8,6 +10,7 @@ import java.util.stream.Collectors;
 public class Main {
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.US);
 
         try (Scanner scanner = new Scanner(System.in)) {
             System.out.print("Enter the file path: ");
@@ -16,13 +19,18 @@ public class Main {
             Safeguard.validateFilePath(filePath);
 
             List<List<Object>> ProcessedData = null;
-            String cacheFileName = "processedData.ser";
-            try {
-                ProcessedData = (List<List<Object>>) TextOperations.Serialization.deserialize(cacheFileName);
-
-            } catch (IOException | ClassNotFoundException e) {
+            String cacheFileName = "ProcessedData.ser";
+            File cacheFile = new File(cacheFileName);
+            if (cacheFile.exists()) {
+                try {
+                    ProcessedData = (List<List<Object>>) TextOperations.Serialization.deserialize(cacheFileName);
+                } catch (IOException | ClassNotFoundException e) {
+                    ProcessedData = DataOperations(filePath);
+                    TextOperations.Serialization.serialize(ProcessedData, cacheFileName);
+                }
+            } else {
                 ProcessedData = DataOperations(filePath);
-                // Serialize the processed data to avoid reprocessing in the future
+                // Serializing the processed data to avoid reprocessing in the future
                 TextOperations.Serialization.serialize(ProcessedData, cacheFileName);
             }
 
