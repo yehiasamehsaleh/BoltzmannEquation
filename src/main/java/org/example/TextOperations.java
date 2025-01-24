@@ -155,17 +155,16 @@ public class TextOperations {
         return Sample_List.toArray(new double[0][]);
     }
 
-    public class Serialization{
-        public static void serialize(Object obj, String filename) throws IOException {
-            try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
-                out.writeObject(obj);
-            }
+    public static void serialize(Object obj, String filename) throws IOException {
+        try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
+            out.writeObject(obj);
         }
+    }
 
-        public static Object deserialize(String filename) throws IOException, ClassNotFoundException {
-            try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
-                return in.readObject();
-            }
+    public static Object deserialize(String filename) throws IOException, ClassNotFoundException {
+        try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
+            return in.readObject();
         }
     }
 }
+
