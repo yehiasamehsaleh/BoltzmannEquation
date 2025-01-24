@@ -2,16 +2,23 @@ package org.example;
 
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 public class TextOperations {
-
     public static void WriteToTextFile(List<List<Object>> sortedData, String FileName) {
+
+        File file = new File(FileName);
+        if (file.exists()) {
+            if (file.delete()) {
+                System.out.println("Preexisting file detected and deleted: " + FileName);
+            } else {
+                System.err.println("Failed to delete the preexisting file: " + FileName);
+            }
+        }
+
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(FileName))) {
 
             String header = String.format("%-8s%-12s%-12s%-12s%-12s%-12s", "Index", "T1", "T2", "T3", "△E", "Boltzmann");
@@ -37,12 +44,11 @@ public class TextOperations {
         if (value == null) {
             return "";
         }
-        return String.format(Locale.US, "%.6f", value);  // Change this to assign the precision
+        return String.format("%.6f", value);  // Change this to assign the precision
     }
 
     public static void WriteToExcel(List<List<Object>> SortedData, String FileName) {
         File file = new File(FileName);
-
         if (file.exists()) {
             if (file.delete()) {
                 System.out.println("Preexisting file detected and deleted: " + FileName);
@@ -56,7 +62,6 @@ public class TextOperations {
             Row headerRow = sheet.createRow(0);
             String[] headers = {"Index", "T1", "T2", "T3", "△E", "Boltzmann"};
 
-            // Carefully creating header row
             for (int col = 0; col < headers.length; col++) {
                 Cell cell = headerRow.createCell(col);
                 cell.setCellValue(headers[col]);
