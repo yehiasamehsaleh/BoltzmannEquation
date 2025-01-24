@@ -23,15 +23,15 @@ public class Main {
             File cacheFile = new File(cacheFileName);
             if (cacheFile.exists()) {
                 try {
-                    ProcessedData = (List<List<Object>>) TextOperations.Serialization.deserialize(cacheFileName);
+                    ProcessedData = (List<List<Object>>) TextOperations.deserialize(cacheFileName);
                 } catch (IOException | ClassNotFoundException e) {
                     ProcessedData = DataOperations(filePath);
-                    TextOperations.Serialization.serialize(ProcessedData, cacheFileName);
+                    TextOperations.serialize(ProcessedData, cacheFileName);
                 }
             } else {
                 ProcessedData = DataOperations(filePath);
                 // Serializing the processed data to avoid reprocessing in the future
-                TextOperations.Serialization.serialize(ProcessedData, cacheFileName);
+                TextOperations.serialize(ProcessedData, cacheFileName);
             }
 
             System.out.println("Processed Data in Ascending Order by △E.");
