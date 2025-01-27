@@ -112,7 +112,6 @@ public class Main {
         DataOrganizer processor = new DataOrganizer(sampleData, 3);
         List<List<Object>> DecimalAccuracy = processor.DecimalNumbersGrouping();
         List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(DecimalAccuracy, 4);
-        //List<Double> epsilonValues = DeduplicatedData.stream().map(row -> (Double) row.get(4)).collect(Collectors.toList());
 
         double[] epsilonArray = DeduplicatedData.stream()
                 .mapToDouble(row -> (Double) row.get(4))
