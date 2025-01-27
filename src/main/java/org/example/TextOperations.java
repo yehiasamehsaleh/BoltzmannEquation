@@ -158,13 +158,20 @@ public class TextOperations {
     public static void serialize(Object obj, String filename) throws IOException {
         try (ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(filename))) {
             out.writeObject(obj);
+        } catch (IOException e) {
+            System.err.println("Error during serialization: " + e.getMessage());
+            throw e;
         }
     }
 
     public static Object deserialize(String filename) throws IOException, ClassNotFoundException {
         try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(filename))) {
             return in.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during deserialization: " + e.getMessage());
+            throw e;
         }
+
     }
 }
 
