@@ -129,7 +129,7 @@ public class Main {
         CMD:
         java -cp "C:\Users\saleh\javaSamples\21\MB\libs\*;C:\Users\saleh\javaSamples\21\MB\target\classes" org.example.Main
 
-        Download all Maven dependencies into a folder and name it libs
+        Download all Maven dependencies into a folder and name it libs to run locally
 
 
  */
