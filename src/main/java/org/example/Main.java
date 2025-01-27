@@ -1,9 +1,11 @@
 package org.example;
 
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
+import java.security.Security;
 import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
@@ -23,7 +25,8 @@ public class Main {
 
     private static String calculateFileHash(String filePath) throws IOException {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            Security.addProvider(new BouncyCastleProvider());
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
             byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
             byte[] hashBytes = digest.digest(fileBytes);
 
@@ -109,6 +112,7 @@ public class Main {
         DataOrganizer processor = new DataOrganizer(sampleData, 3);
         List<List<Object>> DecimalAccuracy = processor.DecimalNumbersGrouping();
         List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(DecimalAccuracy, 4);
+        //List<Double> epsilonValues = DeduplicatedData.stream().map(row -> (Double) row.get(4)).collect(Collectors.toList());
 
         double[] epsilonArray = DeduplicatedData.stream()
                 .mapToDouble(row -> (Double) row.get(4))
@@ -129,7 +133,7 @@ public class Main {
         CMD:
         java -cp "C:\Users\saleh\javaSamples\21\MB\libs\*;C:\Users\saleh\javaSamples\21\MB\target\classes" org.example.Main
 
-        Download all Maven dependencies into a folder and name it libs to run locally
+        Download all Maven dependencies into a folder and name it libs
 
 
  */
