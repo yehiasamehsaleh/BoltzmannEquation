@@ -1,139 +1,140 @@
 package org.example;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Scanner;
-import java.io.IOException;
-import java.util.stream.Collectors;
+import java.util.TreeSet;
 
-public class Main {
-    private static class CacheData implements java.io.Serializable {
-        private static final long serialVersionUID = 1L;
-        final String fileHash;
-        final List<List<Object>> data;
+public class DataOrganizer {
+    private final double[][] data;
+    private final int N_Columns;
+    private static final double TOLERANCE = 0.000001; // Used for proper grouping. For Example, 29.999999 would be placed in Group 5 (-30 to 0). While 30.000001 would be placed in Group 6 (0 to 30)
 
-        CacheData(String fileHash, List<List<Object>> data) {
-            this.fileHash = fileHash;
-            this.data = data;
-        }
-    }
+    private enum Range {
+        GROUP_1("Group 1", -150, -120),
+        GROUP_2("Group 2", -120, -90),
+        GROUP_3("Group 3", -90, -60),
+        GROUP_4("Group 4", -60, -30),
+        GROUP_5("Group 5", -30, 0),
+        GROUP_6("Group 6", 0, 30),
+        GROUP_7("Group 7", 30, 60),
+        GROUP_8("Group 8", 60, 90),
+        GROUP_9("Group 9", 90, 120),
+        GROUP_10("Group 10", 120, 150),
+        GROUP_11("Group 11", -181, -150, 150, 181);
 
-    private static String calculateFileHash(String filePath) throws IOException {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
-            byte[] hashBytes = digest.digest(fileBytes);
+        private final String label;
+        private final List<double[]> limits;
 
-            StringBuilder hexString = new StringBuilder();
-            for (byte hashByte : hashBytes) {
-                String hex = Integer.toHexString(0xff & hashByte);
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-                hexString.append(hex);
+        Range(String label, double... limits) {
+            this.label = label;
+            this.limits = new ArrayList<>();
+            for (int i = 0; i < limits.length; i += 2) {
+                this.limits.add(new double[]{limits[i], limits[i + 1]});
             }
-            return hexString.toString();
-        } catch (Exception e) {
-            throw new IOException("Failed to calculate file hash", e);
+        }
+
+        public boolean contains(double number, double tolerance) {
+            if (!Double.isFinite(number)) return false;
+            return limits.stream().anyMatch(limit -> number >= limit[0] - tolerance && number < limit[1] + tolerance);
+            
+        }
+
+        public String getLabel() {
+            return label;
         }
     }
 
-    public static void main(String[] args) {
-        Locale.setDefault(Locale.US);
+    public DataOrganizer(double[][] data, int numColumns) {
+        if (data == null || data.length == 0 || numColumns <= 0) {
+            throw new IllegalArgumentException("Invalid data or number of columns.");
+        }
 
-        try (Scanner scanner = new Scanner(System.in)) {
-            System.out.print("Enter the file path: ");
-            String filePath = scanner.nextLine();
-            Safeguard.validateUserInput(filePath);
-            Safeguard.validateFilePath(filePath);
+        this.data = data;
+        this.N_Columns = numColumns;
 
-            List<List<Object>> ProcessedData;
-            String cacheFileName = "ProcessedData.ser";
-            File cacheFile = new File(cacheFileName);
-            String currentFileHash = calculateFileHash(filePath);
-
-            if (cacheFile.exists()) {
-                try {
-                    CacheData cachedData = (CacheData) TextOperations.deserialize(cacheFileName);
-                    if (cachedData != null && cachedData.fileHash.equals(currentFileHash)) {
-                        ProcessedData = cachedData.data;
-                        System.out.println("Using cached data - file unchanged.");
-                    } else {
-                        System.out.println("File changed - reprocessing data.");
-                        ProcessedData = ProcessAndCacheData(filePath, currentFileHash, cacheFileName);
-                    }
-                } catch (Exception e) {
-                    System.out.println("Cache error - reprocessing data.");
-                    ProcessedData = ProcessAndCacheData(filePath, currentFileHash, cacheFileName);
-                }
-            } else {
-                ProcessedData = ProcessAndCacheData(filePath, currentFileHash, cacheFileName);
+        int rowLength = data[0].length;
+        for (int i = 1; i < data.length; i++) {
+            if (data[i].length != rowLength) {
+                throw new IllegalArgumentException("Improper row lengths in input data.");
             }
-
-            System.out.println("Processed Data in Ascending Order by △E.");
-            TextOperations.WriteToExcel(ProcessedData, "Result.xlsx");
-            TextOperations.WriteToTextFile(ProcessedData, "Result.txt");
-
-        } catch (NumberFormatException e) {
-            System.err.println("Error: The file contains invalid numeric data. Check the file content.");
-        } catch (IllegalArgumentException e) {
-            System.err.println("Error: " + e.getMessage());
-        } catch (IOException e) {
-            System.err.println("Error: An I/O error occurred while processing the file: " + e.getMessage());
-        } catch (OutOfMemoryError e) {
-            System.err.println("Critical Error: Out of Memory! Unable to complete processing.");
-            System.exit(1);
-        } catch (Exception e) {
-            System.err.println("An unexpected error occurred: " + e.getMessage());
         }
     }
 
-    private static List<List<Object>> ProcessAndCacheData(String filePath, String fileHash, String cacheFileName) {
-        try {
-            List<List<Object>> ProcessedData = DataOperations(filePath);
-            CacheData cacheData = new CacheData(fileHash, ProcessedData);
-            TextOperations.serialize(cacheData, cacheFileName);
-            return ProcessedData;
-        } catch (IOException e) {
-            System.err.println("Error processing file or saving cache: " + e.getMessage());
+    public static String SimilarityGrouping(Double number, double tolerance) {
+        if (number == null || Double.isNaN(number)) {
             return null;
         }
+
+        return Arrays.stream(Range.values())
+                .filter(group -> group.contains(number, tolerance))
+                .findFirst()
+                .map(Range::getLabel)
+                .orElse(null);
     }
 
-    private static List<List<Object>> DataOperations(String filePath) throws IOException {
-        double[][] sampleData = TextOperations.ConvertCSVToArray(filePath);
+    public List<List<Object>> DecimalNumbersGrouping() {
+        List<List<Object>> groups = new ArrayList<>(data.length);
 
-        DataOrganizer processor = new DataOrganizer(sampleData, 3);
-        List<List<Object>> DecimalAccuracy = processor.DecimalNumbersGrouping();
-        List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(DecimalAccuracy, 4);
-        List<Double> epsilonValues = DeduplicatedData.stream()
-                .map(row -> (Double) row.get(4))
-                .collect(Collectors.toList());
+        for (int index = 0; index < data.length; index++) {
+            double[] row = data[index];
+            List<Object> processedRow = new ArrayList<>();
+            processedRow.add(index);
 
-        double[] epsilonArray = DeduplicatedData.stream()
-                .mapToDouble(row -> (Double) row.get(4))
-                .toArray();
-
-        double[] values = Equation.CalculatePartitionFunction(epsilonArray);
-
-        for (int i = 0; i < DeduplicatedData.size(); i++) {
-            DeduplicatedData.get(i).add(values[i]);
+            for (int i = 0; i < row.length; i++) {
+                processedRow.add(i < N_Columns ? SimilarityGrouping(row[i], TOLERANCE) : row[i]);
+            }
+            groups.add(processedRow);
         }
 
-        return DeduplicatedData;
+        return groups;
+    }
+
+    public static List<List<Object>> DeduplicateAndSort(List<List<Object>> rawData, int columnIndexForSorting) {
+        if (rawData == null || rawData.isEmpty()) {
+            return new ArrayList<>(); // Return empty list
+        }
+
+        TreeSet<List<Object>> deduplicatedData = new TreeSet<>((row1, row2) -> {
+            for (int i = 1; i <= 3; i++) {
+                int comparison = CompareObjects(row1.get(i), row2.get(i));
+                if (comparison != 0) {
+                    return comparison;
+                }
+            }
+            return 0;
+        });
+        deduplicatedData.addAll(rawData);
+
+        List<List<Object>> sortedData = new ArrayList<>(deduplicatedData);
+
+        sortedData.sort((row1, row2) -> {
+            Object val1 = row1.get(columnIndexForSorting);
+            Object val2 = row2.get(columnIndexForSorting);
+
+            if (val1 == null && val2 == null) return 0;
+            if (val1 == null) return 1;  // null values are last
+            if (val2 == null) return -1;
+
+            return CompareObjects(val1, val2);  // default Timsort
+        });
+
+        deduplicatedData.clear(); // Limit Data Retention.To ensure intermediate data is cleared or dereferenced when it is no longer needed.
+        rawData.clear();
+        return sortedData;
+    }
+
+    private static int CompareObjects(Object o1, Object o2) {
+        if (o1 == null && o2 == null) return 0;
+        if (o1 == null) return 1;
+        if (o2 == null) return -1;
+
+        if (!(o1 instanceof Comparable<?> && o2 instanceof Comparable<?>)) {
+            throw new IllegalArgumentException("Non-comparable objects found: " + o1 + ", " + o2);
+        }
+        return ((Comparable<Object>) o1).compareTo(o2);
     }
 }
 
-/*
-
-        CMD:
-        java -cp "C:\Users\saleh\javaSamples\21\MB\libs\*;C:\Users\saleh\javaSamples\21\MB\target\classes" org.example.Main
-
-        Download all Maven dependencies into a folder and name it libs
 
 
- */
