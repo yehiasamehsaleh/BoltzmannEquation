@@ -107,9 +107,9 @@ public class Main {
     }
 
     private static List<List<Object>> DataOperations(String filePath) throws IOException {
-        double[][] sampleData = TextOperations.ConvertCSVToArray(filePath);
+        double[][] SampleData = TextOperations.ConvertCSVToArray(filePath);
 
-        DataOrganizer processor = new DataOrganizer(sampleData, 3);
+        DataOrganizer processor = new DataOrganizer(SampleData, 3);
         List<List<Object>> DecimalAccuracy = processor.DecimalNumbersGrouping();
         List<List<Object>> DeduplicatedData = DataOrganizer.DeduplicateAndSort(DecimalAccuracy, 4);
 
