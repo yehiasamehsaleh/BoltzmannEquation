@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Scanner;
 import java.io.IOException;
-import java.util.stream.Collectors;
 
 public class Main {
     private static class CacheData implements java.io.Serializable {
