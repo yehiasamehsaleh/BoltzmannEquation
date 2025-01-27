@@ -14,19 +14,19 @@ import java.io.IOException;
 public class Main {
     private static class CacheData implements java.io.Serializable {
         private static final long serialVersionUID = 1L;
-        final String fileHash;
+        final String FileHash;
         final List<List<Object>> data;
 
-        CacheData(String fileHash, List<List<Object>> data) {
-            this.fileHash = fileHash;
+        CacheData(String FileHash, List<List<Object>> data) {
+            this.FileHash = FileHash;
             this.data = data;
         }
     }
 
-    private static String calculateFileHash(String filePath) throws IOException {
+    private static String CalculateFileHash(String filePath) throws IOException {
         try {
             Security.addProvider(new BouncyCastleProvider());
-            MessageDigest digest = MessageDigest.getInstance("SHA3-256");
+            MessageDigest digest = MessageDigest.getInstance("SHA3-256");  // integrity
             byte[] fileBytes = Files.readAllBytes(Paths.get(filePath));
             byte[] hashBytes = digest.digest(fileBytes);
 
@@ -56,24 +56,24 @@ public class Main {
             List<List<Object>> ProcessedData;
             String cacheFileName = "ProcessedData.ser";
             File cacheFile = new File(cacheFileName);
-            String currentFileHash = calculateFileHash(filePath);
+            String CurrentFileHash = CalculateFileHash(filePath);
 
             if (cacheFile.exists()) {
                 try {
                     CacheData cachedData = (CacheData) TextOperations.deserialize(cacheFileName);
-                    if (cachedData != null && cachedData.fileHash.equals(currentFileHash)) {
+                    if (cachedData != null && cachedData.FileHash.equals(CurrentFileHash)) {
                         ProcessedData = cachedData.data;
                         System.out.println("Using cached data - file unchanged.");
                     } else {
                         System.out.println("File changed - reprocessing data.");
-                        ProcessedData = ProcessAndCacheData(filePath, currentFileHash, cacheFileName);
+                        ProcessedData = ProcessAndCacheData(filePath, CurrentFileHash, cacheFileName);
                     }
                 } catch (Exception e) {
-                    System.out.println("Cache error - reprocessing data.");
-                    ProcessedData = ProcessAndCacheData(filePath, currentFileHash, cacheFileName);
+                    // System.out.println("Cache error - reprocessing data.");
+                    ProcessedData = ProcessAndCacheData(filePath, CurrentFileHash, cacheFileName);
                 }
             } else {
-                ProcessedData = ProcessAndCacheData(filePath, currentFileHash, cacheFileName);
+                ProcessedData = ProcessAndCacheData(filePath, CurrentFileHash, cacheFileName);
             }
 
             System.out.println("Processed Data in Ascending Order by △E.");
@@ -94,10 +94,10 @@ public class Main {
         }
     }
 
-    private static List<List<Object>> ProcessAndCacheData(String filePath, String fileHash, String cacheFileName) {
+    private static List<List<Object>> ProcessAndCacheData(String filePath, String FileHash, String cacheFileName) {
         try {
             List<List<Object>> ProcessedData = DataOperations(filePath);
-            CacheData cacheData = new CacheData(fileHash, ProcessedData);
+            CacheData cacheData = new CacheData(FileHash, ProcessedData);
             TextOperations.serialize(cacheData, cacheFileName);
             return ProcessedData;
         } catch (IOException e) {
