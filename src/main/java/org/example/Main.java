@@ -131,8 +131,9 @@ public class Main {
 
         CMD:
         java -cp "C:\Users\saleh\javaSamples\21\MB\libs\*;C:\Users\saleh\javaSamples\21\MB\target\classes" org.example.Main
-
+        
         Download all Maven dependencies into a folder and name it libs
+        mvn dependency:copy-dependencies -DoutputDirectory="C:\Users\saleh\javaSamples\New folder"\
 
 
  */
